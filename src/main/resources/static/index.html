@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokedex</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="pokedex-body">
+    <div class="pokedex-hinge"></div>
+    <div class="pokedex-left-panel">
+        <div class="pokedex-screen-border">
+            <div id="pokemonScreen" class="pokedex-screen">
+
+                <div id="welcomeMessage">
+                    Digite um Pokémon e aperte "Buscar".
+                </div>
+
+                <div id="loadingIndicator" class="loading-indicator hidden"></div>
+
+                <div id="pokemonInfo" class="pokemon-info hidden">
+                    <img id="pokemonImage" src="" alt="Pokémon Image">
+                    <div class="pokemon-details-on-screen">
+                        <span id="pokemonNumber"></span>
+                        <span id="pokemonNameScreen"></span>
+                    </div>
+                </div>
+
+                <div id="errorMessage" class="error-message hidden"></div>
+            </div>
+        </div>
+        <div class="pokedex-controls">
+            <div class="pokedex-circle-button"></div>
+            <div class="pokedex-green-strip"></div>
+            <div class="pokedex-dpad">
+                <div class="dpad-vertical"></div>
+                <div class="dpad-horizontal"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="pokedex-right-panel">
+        <div class="pokedex-top-section">
+            <div class="search-bar">
+                <input type="text" id="pokemonInput" placeholder="Nome ou ID...">
+                <button id="searchButton">Buscar</button>
+            </div>
+            <div class="data-display">
+
+                <div id="typeContainer" class="data-block hidden">
+                    <p>TIPO:</p>
+                    <span id="pokemonType">---</span>
+                </div>
+
+            </div>
+        </div>
+        <div class="pokedex-bottom-section">
+            <div class="pokedex-buttons-row">
+                <div class="pokedex-small-button"></div>
+                <div class="pokedex-small-button"></div>
+            </div>
+            <div class="pokedex-yellow-button"></div>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
