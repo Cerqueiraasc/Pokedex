@@ -8,7 +8,15 @@ data class PokemonSimplificado(
     val id: Int,
     @JsonProperty("tipo_principal")
     val tipoPrincipal: String,
-    val imagem: String?
+    val imagem: String?,
+    val altura: Int?,
+    val peso: Int?,
+    val stats: List<StatSimplificado>?
+)
+
+data class StatSimplificado(
+    val nome: String,
+    val valor: Int
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -16,7 +24,10 @@ data class PokemonApiResponse(
     val id: Int?,
     val name: String?,
     val types: List<TypeSlot>?,
-    val sprites: SpriteInfo?
+    val sprites: SpriteInfo?,
+    val height: Int?,
+    val weight: Int?,
+    val stats: List<StatSlot>?
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -34,4 +45,16 @@ data class TypeInfo(
 data class SpriteInfo(
     @JsonProperty("front_default")
     val frontDefault: String?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class StatSlot(
+    @JsonProperty("base_stat")
+    val baseStat: Int?,
+    val stat: StatInfo?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class StatInfo(
+    val name: String?
 )

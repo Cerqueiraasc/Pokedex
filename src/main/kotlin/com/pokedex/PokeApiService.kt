@@ -46,11 +46,46 @@ class PokeApiService(
 }
 
 private fun PokemonApiResponse.toSimplificado(): PokemonSimplificado {
+
+    val statsMapeadas = this.stats?.mapNotNull { statSlot ->
+        val nomeStat = statSlot.stat?.name ?: return@mapNotNull null
+        val valorStat = statSlot.baseStat ?: 0
+
+        val nomeTraduzido = when (nomeStat) {
+            "hp" -> "PS"
+            "attack" -> "ATK"
+            "defense" -> "DEF"
+            "special-attack" -> "SP.ATK"
+            "special-defense" -> "SP.DEF"
+            "speed" -> "SPEED"
+            else -> null
+        }
+
+        if (nomeTraduzido != null) {
+            StatSimplificado(nome = nomeTraduzido, valor = valorStat)
+        } else {
+            null
+        }
+    }?.sortedBy {
+        when (it.nome) {
+            "PS" -> 1
+            "ATK" -> 2
+            "DEF" -> 3
+            "SP.ATK" -> 4
+            "SP.DEF" -> 5
+            "SPEED" -> 6
+            else -> 7
+        }
+    }
+
     return PokemonSimplificado(
         nome = this.name ?: "sem-nome",
         id = this.id ?: -1,
         tipoPrincipal = this.types?.firstOrNull()?.type?.name ?: "desconhecido",
-        imagem = this.sprites?.frontDefault
+        imagem = this.sprites?.frontDefault,
+        altura = this.height,
+        peso = this.weight,
+        stats = statsMapeadas
     )
 }
 

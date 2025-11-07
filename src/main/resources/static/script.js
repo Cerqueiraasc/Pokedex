@@ -15,12 +15,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const typeContainer = document.getElementById("typeContainer");
     const pokemonType = document.getElementById("pokemonType");
 
+    const statsGrid = document.getElementById("statsGrid");
+    const heightWeightContainer = document.getElementById("heightWeightContainer");
+    const pokemonHeight = document.getElementById("pokemonHeight");
+    const pokemonWeight = document.getElementById("pokemonWeight");
+
     const typeClasses = [
         'type-normal', 'type-fire', 'type-water', 'type-electric', 'type-grass',
         'type-ice', 'type-fighting', 'type-poison', 'type-ground', 'type-flying',
         'type-psychic', 'type-bug', 'type-rock', 'type-ghost', 'type-dragon',
         'type-dark', 'type-steel', 'type-fairy', 'type-desconhecido'
     ];
+
+    const MAX_STAT_VALUE = 255;
 
     searchButton.addEventListener("click", fetchPokemon);
 
@@ -60,9 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function showPokemon(data) {
-        // --- CORREÇÃO PRINCIPAL AQUI ---
-        // O JSON do backend usa 'tipo_principal' (snake_case)
-        const { nome, id, tipo_principal, imagem } = data;
+        const { nome, id, tipo_principal, imagem, altura, peso, stats } = data;
 
         pokemonImage.src = imagem || '';
         pokemonImage.alt = nome;
@@ -72,9 +77,50 @@ document.addEventListener("DOMContentLoaded", () => {
         pokemonType.textContent = tipo_principal || 'N/A';
         applyTypeStyle(pokemonType, tipo_principal || 'desconhecido');
         typeContainer.classList.remove("hidden");
-        // --- FIM DA CORREÇÃO ---
+
+        pokemonHeight.textContent = altura ? `${(altura / 10.0).toFixed(1)} M` : '---';
+        pokemonWeight.textContent = peso ? `${(peso / 10.0).toFixed(1)} KG` : '---';
+        heightWeightContainer.classList.remove("hidden");
+
+        statsGrid.innerHTML = '';
+        if (stats && stats.length > 0) {
+            stats.forEach(stat => {
+                const statRow = createStatElement(stat.nome, stat.valor);
+                statsGrid.appendChild(statRow);
+            });
+            statsGrid.classList.remove("hidden");
+        }
 
         pokemonInfo.classList.remove("hidden");
+    }
+
+    function createStatElement(name, value) {
+        const statName = document.createElement('span');
+        statName.className = 'stat-name';
+        statName.textContent = name;
+
+        const statBarContainer = document.createElement('div');
+        statBarContainer.className = 'stat-bar-container';
+
+        const statBar = document.createElement('div');
+        statBar.className = 'stat-bar';
+
+        const percentage = (value / MAX_STAT_VALUE) * 100;
+        setTimeout(() => {
+            statBar.style.width = `${Math.min(percentage, 100)}%`;
+        }, 100);
+
+        if (percentage < 33) statBar.classList.add('low');
+        else if (percentage < 66) statBar.classList.add('medium');
+        else statBar.classList.add('high');
+
+        statBarContainer.appendChild(statBar);
+
+        const fragment = document.createDocumentFragment();
+        fragment.appendChild(statName);
+        fragment.appendChild(statBarContainer);
+
+        return fragment;
     }
 
     function showError(message) {
@@ -87,6 +133,9 @@ document.addEventListener("DOMContentLoaded", () => {
         errorMessage.classList.add("hidden");
         pokemonInfo.classList.add("hidden");
         typeContainer.classList.add("hidden");
+        heightWeightContainer.classList.add("hidden");
+        statsGrid.classList.add("hidden");
+        statsGrid.innerHTML = '';
         applyTypeStyle(pokemonType, null);
     }
 
