@@ -20,6 +20,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const pokemonHeight = document.getElementById("pokemonHeight");
     const pokemonWeight = document.getElementById("pokemonWeight");
 
+    const evolutionContainer = document.getElementById("evolutionContainer");
+    const evolutionList = document.getElementById("evolutionList");
+
     const typeClasses = [
         'type-normal', 'type-fire', 'type-water', 'type-electric', 'type-grass',
         'type-ice', 'type-fighting', 'type-poison', 'type-ground', 'type-flying',
@@ -67,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function showPokemon(data) {
-        const { nome, id, tipo_principal, imagem, altura, peso, stats } = data;
+        const { nome, id, tipo_principal, imagem, altura, peso, stats, evolucoes } = data;
 
         pokemonImage.src = imagem || '';
         pokemonImage.alt = nome;
@@ -89,6 +92,28 @@ document.addEventListener("DOMContentLoaded", () => {
                 statsGrid.appendChild(statRow);
             });
             statsGrid.classList.remove("hidden");
+        }
+
+        evolutionList.innerHTML = '';
+        if (evolucoes && evolucoes.length > 1) {
+            evolucoes
+                .filter(evoName => evoName !== nome)
+                .forEach(evoName => {
+                    const evoItem = document.createElement('div');
+                    evoItem.className = 'evolution-item';
+                    evoItem.textContent = evoName;
+
+                    evoItem.addEventListener('click', () => {
+                        pokemonInput.value = evoName;
+                        fetchPokemon();
+                    });
+
+                    evolutionList.appendChild(evoItem);
+                });
+
+            if (evolutionList.children.length > 0) {
+                evolutionContainer.classList.remove("hidden");
+            }
         }
 
         pokemonInfo.classList.remove("hidden");
@@ -136,6 +161,8 @@ document.addEventListener("DOMContentLoaded", () => {
         heightWeightContainer.classList.add("hidden");
         statsGrid.classList.add("hidden");
         statsGrid.innerHTML = '';
+        evolutionContainer.classList.add("hidden");
+        evolutionList.innerHTML = '';
         applyTypeStyle(pokemonType, null);
     }
 

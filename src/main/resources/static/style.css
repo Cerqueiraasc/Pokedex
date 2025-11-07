@@ -1,5 +1,4 @@
 body {
-    font-family: 'Press Start 2P', cursive, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background-color: #333;
     display: flex;
     justify-content: center;
@@ -7,6 +6,7 @@ body {
     min-height: 100vh;
     margin: 0;
     overflow: hidden;
+    font-family: 'Press Start 2P', cursive;
 }
 
 .pokedex-body {
@@ -23,6 +23,9 @@ body {
     border-radius: 15px;
     box-sizing: border-box;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .pokedex-left-panel {
@@ -30,7 +33,6 @@ body {
     border-bottom-right-radius: 0;
     border-right: none;
     position: relative;
-    padding-right: 0;
 }
 
 .pokedex-right-panel {
@@ -38,7 +40,6 @@ body {
     border-bottom-left-radius: 0;
     border-left: none;
     position: relative;
-    padding-left: 0;
 }
 
 .pokedex-hinge {
@@ -57,7 +58,6 @@ body {
     border: 5px solid #222;
     border-radius: 8px;
     padding: 10px;
-    margin: 10px 20px 20px 0;
     height: 280px;
     display: flex;
     justify-content: center;
@@ -67,7 +67,7 @@ body {
 }
 
 .pokedex-screen {
-    background-color: #b0e0a3;
+    background-color: #64B5F6;
     width: 100%;
     height: 100%;
     border-radius: 5px;
@@ -77,7 +77,6 @@ body {
     align-items: center;
     padding: 5px;
     box-sizing: border-box;
-    font-family: 'Press Start 2P', cursive;
     font-size: 12px;
     color: #333;
     position: relative;
@@ -120,7 +119,7 @@ body {
 
 #pokemonNumber {
     font-size: 16px;
-    color: #666;
+    color: #FEFEFE;
 }
 
 #pokemonNameScreen {
@@ -138,12 +137,11 @@ body {
     padding: 0 10px;
 }
 
-.pokedex-controls {
+.pokedex-controls-container {
     display: flex;
-    align-items: center;
-    padding-left: 20px;
-    margin-top: 10px;
-    gap: 20px;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 10px;
 }
 
 .pokedex-circle-button {
@@ -161,7 +159,7 @@ body {
     background-color: #4CAF50;
     border-radius: 6px;
     border: 2px solid #388E3C;
-    margin-left: 20px;
+    margin-bottom: 25px;
 }
 
 .pokedex-dpad {
@@ -171,8 +169,6 @@ body {
     background-color: #444;
     border-radius: 5px;
     border: 2px solid #222;
-    margin-left: auto;
-    margin-right: 20px;
 }
 
 .dpad-vertical, .dpad-horizontal {
@@ -206,24 +202,25 @@ body {
 }
 
 .pokedex-top-section {
-    background-color: #333;
+    background-color: #64B5F6;
     border: 4px solid #111;
     border-radius: 8px;
     padding: 15px;
-    margin: 10px 0 10px 20px;
-    height: 250px;
+    height: 320px;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     gap: 10px;
-    font-family: 'Press Start 2P', cursive;
     color: #EFEFEF;
     font-size: 10px;
 }
 
-.pokedex-top-section p {
+.pokedex-top-section p,
+.pokedex-bottom-section p,
+.data-block p {
     margin: 0;
     line-height: 1.5;
+    font-family: 'Press Start 2P', cursive;
 }
 
 .search-bar {
@@ -232,13 +229,14 @@ body {
     box-sizing: border-box;
     gap: 5px;
     margin-bottom: 10px;
+    align-items: center;
 }
 
 #pokemonInput {
     width: 75%;
     border: 1px solid #555;
     background-color: #000;
-    color: #b0e0a3;
+    color: #FEFEFE;
     border-radius: 5px;
     padding: 8px;
     font-size: 12px;
@@ -253,7 +251,7 @@ body {
     border: none;
     border-radius: 5px;
     padding: 8px 0;
-    font-size: 12px;
+    font-size: 10px;
     font-weight: bold;
     cursor: pointer;
     font-family: 'Press Start 2P', cursive;
@@ -275,7 +273,24 @@ body {
 .data-display {
     flex-grow: 1;
     overflow-y: auto;
+    padding-right: 5px;
 }
+
+.data-display::-webkit-scrollbar {
+    width: 8px;
+}
+.data-display::-webkit-scrollbar-track {
+    background: #111;
+    border-radius: 4px;
+}
+.data-display::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+}
+.data-display::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
+
 
 .data-block {
     display: flex;
@@ -329,16 +344,42 @@ body {
 .stat-bar.medium { background-color: #F8D030; }
 .stat-bar.high { background-color: #78C850; }
 
+#evolutionContainer {
+    margin-top: 15px;
+}
+
+#evolutionList {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    text-transform: capitalize;
+}
+
+.evolution-item {
+    color: #FEFEFE;
+    font-size: 12px;
+    padding: 3px 6px;
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.evolution-item:hover {
+    background-color: rgba(176, 224, 163, 0.3);
+}
+
+.evolution-item:active {
+    background-color: rgba(176, 224, 163, 0.5);
+    transform: scale(0.98);
+}
 
 .pokedex-bottom-section {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    align-items: center;
-    margin-top: 20px;
-    padding: 0 20px;
-    gap: 15px;
-    font-family: 'Press Start 2P', cursive;
+    align-items: flex-end;
+    padding: 0 10px;
     color: #EFEFEF;
     font-size: 10px;
 }
@@ -352,6 +393,13 @@ body {
 
 .height-weight-block p {
     margin: 0;
+}
+
+.bottom-buttons-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
 }
 
 .pokedex-buttons-row {

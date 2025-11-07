@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokedex</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -34,7 +34,8 @@
                 <div id="errorMessage" class="error-message hidden"></div>
             </div>
         </div>
-        <div class="pokedex-controls">
+
+        <div class="pokedex-controls-container">
             <div class="pokedex-circle-button"></div>
             <div class="pokedex-green-strip"></div>
             <div class="pokedex-dpad">
@@ -60,18 +61,26 @@
                 <div id="statsGrid" class="data-block hidden">
                 </div>
 
+                <div id="evolutionContainer" class="data-block hidden">
+                    <p>EVOLUÇÕES:</p>
+                    <div id="evolutionList"></div>
+                </div>
+
             </div>
         </div>
+
         <div class="pokedex-bottom-section">
             <div id="heightWeightContainer" class="height-weight-block hidden">
                 <p>ALTURA: <span id="pokemonHeight">---</span></p>
                 <p>PESO: <span id="pokemonWeight">---</span></p>
             </div>
-            <div class="pokedex-buttons-row">
-                <div class="pokedex-small-button"></div>
-                <div class="pokedex-small-button"></div>
+            <div class="bottom-buttons-container">
+                <div class="pokedex-buttons-row">
+                    <div class="pokedex-small-button"></div>
+                    <div class="pokedex-small-button"></div>
+                </div>
+                <div class="pokedex-yellow-button"></div>
             </div>
-            <div class="pokedex-yellow-button"></div>
         </div>
     </div>
 </div>

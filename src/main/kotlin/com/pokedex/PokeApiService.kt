@@ -6,6 +6,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.awaitBody
+import java.net.URI
 
 @Service
 class PokeApiService(
@@ -24,7 +25,9 @@ class PokeApiService(
                 .retrieve()
                 .awaitBody<PokemonApiResponse>()
 
-            return pokemonData.toSimplificado()
+            val evolucoes = getEvolucoes(pokemonData.species?.url)
+
+            return pokemonData.toSimplificado(evolucoes)
 
         } catch (e: WebClientResponseException.NotFound) {
             logger.warn("Pokémon não encontrado com o nome: '$lowercaseName'", e)
@@ -43,9 +46,45 @@ class PokeApiService(
             throw IllegalStateException("Erro de conexão ao consultar a PokéAPI: ${e.message}")
         }
     }
+
+    private suspend fun getEvolucoes(speciesUrl: String?): List<String>? {
+        if (speciesUrl == null) return null
+
+        return try {
+            val speciesData = pokeApiWebClient.get()
+                .uri(URI.create(speciesUrl))
+                .retrieve()
+                .awaitBody<SpeciesApiResponse>()
+
+            val evolutionChainUrl = speciesData.evolutionChain?.url ?: return null
+
+            val evolutionChainData = pokeApiWebClient.get()
+                .uri(URI.create(evolutionChainUrl))
+                .retrieve()
+                .awaitBody<EvolutionChainApiResponse>()
+
+            parseEvolutionChain(evolutionChainData.chain)
+
+        } catch (e: Exception) {
+            logger.error("Falha ao buscar cadeia de evolução para $speciesUrl", e)
+            null
+        }
+    }
+
+    private fun parseEvolutionChain(chainLink: ChainLink?): List<String> {
+        val evolucoes = mutableListOf<String>()
+        var currentLink = chainLink
+
+        while (currentLink != null) {
+            currentLink.species?.name?.let { evolucoes.add(it) }
+            currentLink = currentLink.evolvesTo?.firstOrNull()
+        }
+
+        return evolucoes
+    }
 }
 
-private fun PokemonApiResponse.toSimplificado(): PokemonSimplificado {
+private fun PokemonApiResponse.toSimplificado(evolucoes: List<String>?): PokemonSimplificado {
 
     val statsMapeadas = this.stats?.mapNotNull { statSlot ->
         val nomeStat = statSlot.stat?.name ?: return@mapNotNull null
@@ -85,7 +124,8 @@ private fun PokemonApiResponse.toSimplificado(): PokemonSimplificado {
         imagem = this.sprites?.frontDefault,
         altura = this.height,
         peso = this.weight,
-        stats = statsMapeadas
+        stats = statsMapeadas,
+        evolucoes = evolucoes
     )
 }
 

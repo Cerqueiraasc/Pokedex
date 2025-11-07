@@ -11,7 +11,8 @@ data class PokemonSimplificado(
     val imagem: String?,
     val altura: Int?,
     val peso: Int?,
-    val stats: List<StatSimplificado>?
+    val stats: List<StatSimplificado>?,
+    val evolucoes: List<String>?
 )
 
 data class StatSimplificado(
@@ -27,7 +28,8 @@ data class PokemonApiResponse(
     val sprites: SpriteInfo?,
     val height: Int?,
     val weight: Int?,
-    val stats: List<StatSlot>?
+    val stats: List<StatSlot>?,
+    val species: SpeciesUrl?
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -56,5 +58,38 @@ data class StatSlot(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class StatInfo(
+    val name: String?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SpeciesUrl(
+    val url: String?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SpeciesApiResponse(
+    @JsonProperty("evolution_chain")
+    val evolutionChain: EvolutionChainUrl?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class EvolutionChainUrl(
+    val url: String?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class EvolutionChainApiResponse(
+    val chain: ChainLink?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class ChainLink(
+    val species: SpeciesInfo?,
+    @JsonProperty("evolves_to")
+    val evolvesTo: List<ChainLink>?
+)
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+data class SpeciesInfo(
     val name: String?
 )
