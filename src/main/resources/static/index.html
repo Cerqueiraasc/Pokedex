@@ -4,37 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pokedex</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="pokedex-body">
-    <div class="pokedex-hinge"></div>
+<main class="pokedex-body">
     <div class="pokedex-left-panel">
         <div class="pokedex-screen-border">
-            <div id="pokemonScreen" class="pokedex-screen">
+            <div class="pokedex-screen">
 
                 <div id="welcomeMessage">
-                    Digite um Pokémon e aperte "Buscar".
+                    <p>Bem-vindo à Pokedex!</p>
+                    <p style="margin-top: 15px; font-size: 9px;">Digite o nome de um Pokémon no painel à direita.</p>
                 </div>
 
                 <div id="loadingIndicator" class="loading-indicator hidden"></div>
 
-                <div id="pokemonInfo" class="pokemon-info hidden">
-                    <img id="pokemonImage" src="" alt="Pokémon Image">
+                <div id="errorMessage" class="error-message hidden"></div>
+
+                <div id="pokemonInfoScreen" class="pokemon-info hidden">
+                    <img id="pokemonImage" src="" alt="Imagem do Pokémon">
                     <div class="pokemon-details-on-screen">
                         <span id="pokemonNumber"></span>
                         <span id="pokemonNameScreen"></span>
                     </div>
                 </div>
 
-                <div id="errorMessage" class="error-message hidden"></div>
             </div>
         </div>
-
         <div class="pokedex-controls-container">
             <div class="pokedex-circle-button"></div>
             <div class="pokedex-green-strip"></div>
@@ -45,45 +43,48 @@
         </div>
     </div>
 
+    <div class="pokedex-hinge"></div>
+
     <div class="pokedex-right-panel">
         <div class="pokedex-top-section">
-            <div class="search-bar">
-                <input type="text" id="pokemonInput" placeholder="Nome ou ID...">
-                <button id="searchButton">Buscar</button>
-            </div>
-            <div class="data-display">
+            <form id="searchForm" class="search-bar">
+                <input type="text" id="pokemonInput" placeholder="Nome do Pokémon..." required>
+                <button type="submit" id="searchButton">BUSCAR</button>
+            </form>
 
-                <div id="typeContainer" class="data-block hidden">
+            <div id="dataDisplay" class="data-display hidden">
+                <div class="data-block" id="typeContainer">
                     <p>TIPO:</p>
-                    <span id="pokemonType">---</span>
+                    <span id="pokemonType"></span>
                 </div>
 
-                <div id="statsGrid" class="data-block hidden">
+                <div class="data-block" id="statsContainer">
+                    <p>STATS:</p>
+                    <div id="statsGrid"></div>
                 </div>
 
-                <div id="evolutionContainer" class="data-block hidden">
+                <div class="data-block" id="evolutionContainer">
                     <p>EVOLUÇÕES:</p>
                     <div id="evolutionList"></div>
                 </div>
-
             </div>
         </div>
 
         <div class="pokedex-bottom-section">
-            <div id="heightWeightContainer" class="height-weight-block hidden">
-                <p>ALTURA: <span id="pokemonHeight">---</span></p>
-                <p>PESO: <span id="pokemonWeight">---</span></p>
+            <div class="height-weight-block">
+                <p id="pokemonHeight"></p>
+                <p id="pokemonWeight"></p>
             </div>
             <div class="bottom-buttons-container">
                 <div class="pokedex-buttons-row">
                     <div class="pokedex-small-button"></div>
                     <div class="pokedex-small-button"></div>
                 </div>
-                <div class="pokedex-yellow-button"></div>
+                <button id="saveButton" class="pokedex-yellow-button" title="Salvar Pokémon" disabled></button>
             </div>
         </div>
     </div>
-</div>
+</main>
 
 <script src="script.js"></script>
 </body>

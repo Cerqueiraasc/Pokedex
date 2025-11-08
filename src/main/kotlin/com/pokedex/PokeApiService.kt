@@ -1,47 +1,43 @@
 package com.pokedex
 
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.WebClientRequestException
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.awaitBody
 import java.net.URI
 
 @Service
 class PokeApiService(
-    private val pokeApiWebClient: WebClient
+    private val pokeApiWebClient: WebClient,
+    private val repository: PokemonRepository
 ) {
-
     companion object {
-        private val logger = LoggerFactory.getLogger(PokeApiService::class.java)
+        private val logger: Logger = LoggerFactory.getLogger(PokeApiService::class.java)
+    }
+
+    fun getAll(): List<PokemonSalvo>{
+        return repository.findAll()
     }
 
     suspend fun getPokemon(name: String): PokemonSimplificado {
         val lowercaseName = name.lowercase()
         try {
-            val pokemonData = pokeApiWebClient.get()
+            val pokemon = pokeApiWebClient.get()
                 .uri("/pokemon/{name}", lowercaseName)
                 .retrieve()
                 .awaitBody<PokemonApiResponse>()
 
-            val evolucoes = getEvolucoes(pokemonData.species?.url)
+            val evolucoes = getEvolucoes(pokemon.species?.url)
 
-            return pokemonData.toSimplificado(evolucoes)
+            return pokemon.toSimplificado(evolucoes)
 
         } catch (e: WebClientResponseException.NotFound) {
-            logger.warn("Pokémon não encontrado com o nome: '$lowercaseName'", e)
-            throw PokemonNotFoundException("Pokémon '$name' não encontrado.")
+            logger.warn("Pokemon não encontrado com o nome: '$lowercaseName'", e)
+            throw PokemonNotFoundException("Pokemon '$name' não encontrado.")
 
         } catch (e: WebClientResponseException) {
-            logger.error(
-                "Erro ${e.statusCode} ao consultar PokéAPI para '$lowercaseName'. " +
-                        "Isso geralmente indica falha na deserialização (JSON -> Data Class). " +
-                        "Resposta: ${e.responseBodyAsString}", e
-            )
-            throw IllegalStateException("Erro ${e.statusCode} ao processar dados da PokéAPI.")
-
-        } catch (e: WebClientRequestException) {
             logger.error("Erro de conexão ao consultar PokéAPI para '$lowercaseName'", e)
             throw IllegalStateException("Erro de conexão ao consultar a PokéAPI: ${e.message}")
         }
@@ -72,20 +68,36 @@ class PokeApiService(
     }
 
     private fun parseEvolutionChain(chainLink: ChainLink?): List<String> {
+       if (chainLink == null) return emptyList()
+
         val evolucoes = mutableListOf<String>()
-        var currentLink = chainLink
 
-        while (currentLink != null) {
-            currentLink.species?.name?.let { evolucoes.add(it) }
-            currentLink = currentLink.evolvesTo?.firstOrNull()
+        chainLink.species?.name?.let { evolucoes.add(it) }
+
+        chainLink.evolvesTo?.forEach { proximaEvolucao ->
+            evolucoes.addAll(parseEvolutionChain(proximaEvolucao))
         }
-
         return evolucoes
+    }
+
+    suspend fun salvarPokemon(pokemon: PokemonSimplificado) {
+        try {
+            val pokemonParaSalvar = PokemonSalvo(
+                id = pokemon.id,
+                nome = pokemon.nome,
+                tipoPrincipal = pokemon.tipoPrincipal,
+                imagem = pokemon.imagem
+            )
+            repository.save(pokemonParaSalvar)
+            logger.info("Pokemon ${pokemon.nome} salvo com sucesso!")
+        } catch (e: Exception) {
+            logger.error("Erro ao salvar Pokemon ${pokemon.nome}: ${e.message}")
+            throw IllegalStateException("Erro ao salvar no banco de dados.")
+        }
     }
 }
 
 private fun PokemonApiResponse.toSimplificado(evolucoes: List<String>?): PokemonSimplificado {
-
     val statsMapeadas = this.stats?.mapNotNull { statSlot ->
         val nomeStat = statSlot.stat?.name ?: return@mapNotNull null
         val valorStat = statSlot.baseStat ?: 0

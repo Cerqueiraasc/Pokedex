@@ -1,176 +1,183 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
 
-    const searchButton = document.getElementById("searchButton");
-    const pokemonInput = document.getElementById("pokemonInput");
+    const searchForm = document.getElementById('searchForm');
+    const pokemonInput = document.getElementById('pokemonInput');
+    const saveButton = document.getElementById('saveButton');
 
-    const welcomeMessage = document.getElementById("welcomeMessage");
-    const loadingIndicator = document.getElementById("loadingIndicator");
-    const pokemonInfo = document.getElementById("pokemonInfo");
-    const errorMessage = document.getElementById("errorMessage");
+    const welcomeMessage = document.getElementById('welcomeMessage');
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const errorMessage = document.getElementById('errorMessage');
+    const pokemonInfoScreen = document.getElementById('pokemonInfoScreen');
+    const pokemonImage = document.getElementById('pokemonImage');
+    const pokemonNumber = document.getElementById('pokemonNumber');
+    const pokemonNameScreen = document.getElementById('pokemonNameScreen');
 
-    const pokemonImage = document.getElementById("pokemonImage");
-    const pokemonNumber = document.getElementById("pokemonNumber");
-    const pokemonNameScreen = document.getElementById("pokemonNameScreen");
+    const dataDisplay = document.getElementById('dataDisplay');
+    const pokemonType = document.getElementById('pokemonType');
+    const statsGrid = document.getElementById('statsGrid');
+    const evolutionList = document.getElementById('evolutionList');
+    const pokemonHeight = document.getElementById('pokemonHeight');
+    const pokemonWeight = document.getElementById('pokemonWeight');
 
-    const typeContainer = document.getElementById("typeContainer");
-    const pokemonType = document.getElementById("pokemonType");
+    let currentPokemonData = null;
 
-    const statsGrid = document.getElementById("statsGrid");
-    const heightWeightContainer = document.getElementById("heightWeightContainer");
-    const pokemonHeight = document.getElementById("pokemonHeight");
-    const pokemonWeight = document.getElementById("pokemonWeight");
-
-    const evolutionContainer = document.getElementById("evolutionContainer");
-    const evolutionList = document.getElementById("evolutionList");
-
-    const typeClasses = [
-        'type-normal', 'type-fire', 'type-water', 'type-electric', 'type-grass',
-        'type-ice', 'type-fighting', 'type-poison', 'type-ground', 'type-flying',
-        'type-psychic', 'type-bug', 'type-rock', 'type-ghost', 'type-dragon',
-        'type-dark', 'type-steel', 'type-fairy', 'type-desconhecido'
-    ];
-
-    const MAX_STAT_VALUE = 255;
-
-    searchButton.addEventListener("click", fetchPokemon);
-
-    pokemonInput.addEventListener("keyup", (event) => {
-        if (event.key === "Enter") {
-            fetchPokemon();
+    searchForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const pokemonName = pokemonInput.value.trim();
+        if (pokemonName) {
+            fetchPokemon(pokemonName);
         }
     });
 
-    async function fetchPokemon() {
-        const name = pokemonInput.value.toLowerCase().trim();
-
-        if (!name) {
-            showError("Digite um nome ou ID.");
-            return;
-        }
-
-        hideAll();
-        loadingIndicator.classList.remove("hidden");
+    async function fetchPokemon(name) {
+        showLoading();
 
         try {
-            const response = await fetch(`/pokemon/${name}`);
+            const response = await fetch(`/pokemon/${name.toLowerCase()}`);
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || `Erro ${response.status}`);
+                if (response.status === 404) {
+                    throw new Error('Pokémon não encontrado!');
+                }
+                throw new Error('Erro ao buscar. Tente novamente.');
             }
 
             const data = await response.json();
-            showPokemon(data);
+            currentPokemonData = data;
+            updateUI(data);
+            showData();
 
         } catch (error) {
             showError(error.message);
-        } finally {
-            loadingIndicator.classList.add("hidden");
         }
     }
 
-    function showPokemon(data) {
-        const { nome, id, tipo_principal, imagem, altura, peso, stats, evolucoes } = data;
+    saveButton.addEventListener('click', async () => {
+        if (!currentPokemonData) return;
 
-        pokemonImage.src = imagem || '';
-        pokemonImage.alt = nome;
-        pokemonNumber.textContent = `#${String(id).padStart(3, '0')}`;
-        pokemonNameScreen.textContent = nome;
+        saveButton.disabled = true;
 
-        pokemonType.textContent = tipo_principal || 'N/A';
-        applyTypeStyle(pokemonType, tipo_principal || 'desconhecido');
-        typeContainer.classList.remove("hidden");
-
-        pokemonHeight.textContent = altura ? `${(altura / 10.0).toFixed(1)} M` : '---';
-        pokemonWeight.textContent = peso ? `${(peso / 10.0).toFixed(1)} KG` : '---';
-        heightWeightContainer.classList.remove("hidden");
-
-        statsGrid.innerHTML = '';
-        if (stats && stats.length > 0) {
-            stats.forEach(stat => {
-                const statRow = createStatElement(stat.nome, stat.valor);
-                statsGrid.appendChild(statRow);
+        try {
+            const response = await fetch('/pokemon/salvar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(currentPokemonData),
             });
-            statsGrid.classList.remove("hidden");
-        }
 
-        evolutionList.innerHTML = '';
-        if (evolucoes && evolucoes.length > 1) {
-            evolucoes
-                .filter(evoName => evoName !== nome)
-                .forEach(evoName => {
-                    const evoItem = document.createElement('div');
-                    evoItem.className = 'evolution-item';
-                    evoItem.textContent = evoName;
-
-                    evoItem.addEventListener('click', () => {
-                        pokemonInput.value = evoName;
-                        fetchPokemon();
-                    });
-
-                    evolutionList.appendChild(evoItem);
-                });
-
-            if (evolutionList.children.length > 0) {
-                evolutionContainer.classList.remove("hidden");
+            if (!response.ok) {
+                throw new Error('Falha ao salvar Pokémon.');
             }
-        }
 
-        pokemonInfo.classList.remove("hidden");
+            alert(`Pokémon ${currentPokemonData.nome} salvo com sucesso!`);
+
+        } catch (error) {
+            alert(error.message);
+        } finally {
+            saveButton.disabled = false;
+        }
+    });
+
+    function updateUI(data) {
+        pokemonImage.src = data.imagem || '';
+        pokemonImage.alt = `Imagem de ${data.nome}`;
+        pokemonNumber.textContent = `#${data.id.toString().padStart(3, '0')}`;
+        pokemonNameScreen.textContent = data.nome;
+
+        pokemonHeight.textContent = `Altura: ${(data.altura / 10).toFixed(1)} m`;
+        pokemonWeight.textContent = `Peso: ${(data.peso / 10).toFixed(1)} kg`;
+
+        pokemonType.textContent = data.tipoPrincipal;
+        pokemonType.className = `type-${data.tipoPrincipal.toLowerCase()}`;
+
+        renderStats(data.stats);
+
+        renderEvolutions(data.evolucoes, data.nome);
+
+        saveButton.disabled = false;
     }
 
-    function createStatElement(name, value) {
-        const statName = document.createElement('span');
-        statName.className = 'stat-name';
-        statName.textContent = name;
+    function renderStats(stats) {
+        statsGrid.innerHTML = '';
+        stats.forEach(stat => {
+            const statName = document.createElement('span');
+            statName.className = 'stat-name';
+            statName.textContent = stat.nome;
 
-        const statBarContainer = document.createElement('div');
-        statBarContainer.className = 'stat-bar-container';
+            const barContainer = document.createElement('div');
+            barContainer.className = 'stat-bar-container';
 
-        const statBar = document.createElement('div');
-        statBar.className = 'stat-bar';
+            const bar = document.createElement('div');
+            bar.className = 'stat-bar';
 
-        const percentage = (value / MAX_STAT_VALUE) * 100;
-        setTimeout(() => {
-            statBar.style.width = `${Math.min(percentage, 100)}%`;
-        }, 100);
+            if (stat.valor < 50) bar.classList.add('low');
+            else if (stat.valor < 100) bar.classList.add('medium');
+            else bar.classList.add('high');
 
-        if (percentage < 33) statBar.classList.add('low');
-        else if (percentage < 66) statBar.classList.add('medium');
-        else statBar.classList.add('high');
+            const widthPercent = (stat.valor / 255) * 100;
+            bar.style.width = `${widthPercent > 100 ? 100 : widthPercent}%`;
 
-        statBarContainer.appendChild(statBar);
+            barContainer.appendChild(bar);
+            statsGrid.appendChild(statName);
+            statsGrid.appendChild(barContainer);
+        });
+    }
 
-        const fragment = document.createDocumentFragment();
-        fragment.appendChild(statName);
-        fragment.appendChild(statBarContainer);
+    function renderEvolutions(evolutions, currentName) {
+        evolutionList.innerHTML = '';
 
-        return fragment;
+        const otherEvolutions = evolutions ? evolutions.filter(evoName => evoName !== currentName) : [];
+
+        if (otherEvolutions.length === 0) {
+            evolutionList.innerHTML = '<span class="evolution-item">Sem evoluções</span>';
+            return;
+        }
+
+        otherEvolutions.forEach(evoName => {
+            const evoItem = document.createElement('span');
+            evoItem.className = 'evolution-item';
+            evoItem.textContent = evoName;
+            evoItem.dataset.name = evoName;
+            evolutionList.appendChild(evoItem);
+        });
+    }
+
+    evolutionList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('evolution-item') && e.target.dataset.name) {
+            const name = e.target.dataset.name;
+            pokemonInput.value = name;
+            fetchPokemon(name);
+        }
+    });
+
+    function showLoading() {
+        welcomeMessage.classList.add('hidden');
+        errorMessage.classList.add('hidden');
+        pokemonInfoScreen.classList.add('hidden');
+        dataDisplay.classList.add('hidden');
+        loadingIndicator.classList.remove('hidden');
+        saveButton.disabled = true;
+        currentPokemonData = null;
     }
 
     function showError(message) {
+        welcomeMessage.classList.add('hidden');
+        loadingIndicator.classList.add('hidden');
+        pokemonInfoScreen.classList.add('hidden');
+        dataDisplay.classList.add('hidden');
+
         errorMessage.textContent = message;
-        errorMessage.classList.remove("hidden");
+        errorMessage.classList.remove('hidden');
+        saveButton.disabled = true;
     }
 
-    function hideAll() {
-        welcomeMessage.classList.add("hidden");
-        errorMessage.classList.add("hidden");
-        pokemonInfo.classList.add("hidden");
-        typeContainer.classList.add("hidden");
-        heightWeightContainer.classList.add("hidden");
-        statsGrid.classList.add("hidden");
-        statsGrid.innerHTML = '';
-        evolutionContainer.classList.add("hidden");
-        evolutionList.innerHTML = '';
-        applyTypeStyle(pokemonType, null);
-    }
+    function showData() {
+        welcomeMessage.classList.add('hidden');
+        loadingIndicator.classList.add('hidden');
+        errorMessage.classList.add('hidden');
 
-    function applyTypeStyle(element, type) {
-        typeClasses.forEach(c => element.classList.remove(c));
-
-        if (type) {
-            element.classList.add(`type-${type}`);
-        }
+        pokemonInfoScreen.classList.remove('hidden');
+        dataDisplay.classList.remove('hidden');
     }
 });

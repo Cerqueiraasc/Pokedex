@@ -2,11 +2,16 @@ package com.pokedex
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
+import jakarta.persistence.Column
+import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.GenerationType
+import jakarta.persistence.Table
+import jakarta.persistence.Id
 
 data class PokemonSimplificado(
     val nome: String,
     val id: Int,
-    @JsonProperty("tipo_principal")
     val tipoPrincipal: String,
     val imagem: String?,
     val altura: Int?,
@@ -20,7 +25,6 @@ data class StatSimplificado(
     val valor: Int
 )
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class PokemonApiResponse(
     val id: Int?,
     val name: String?,
@@ -32,64 +36,63 @@ data class PokemonApiResponse(
     val species: SpeciesUrl?
 )
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class TypeSlot(
     val slot: Int?,
     val type: TypeInfo?
 )
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class TypeInfo(
     val name: String?
 )
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class SpriteInfo(
-    @JsonProperty("front_default")
-    val frontDefault: String?
+    @JsonProperty("front_default") val frontDefault: String?
 )
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class StatSlot(
-    @JsonProperty("base_stat")
-    val baseStat: Int?,
+    @JsonProperty("base_stat") val baseStat: Int?,
     val stat: StatInfo?
 )
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class StatInfo(
     val name: String?
 )
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class SpeciesUrl(
     val url: String?
 )
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class SpeciesApiResponse(
-    @JsonProperty("evolution_chain")
-    val evolutionChain: EvolutionChainUrl?
+    @JsonProperty("evolution_chain") val evolutionChain: EvolutionChainUrl?
 )
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class EvolutionChainUrl(
     val url: String?
 )
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class EvolutionChainApiResponse(
     val chain: ChainLink?
 )
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class ChainLink(
     val species: SpeciesInfo?,
-    @JsonProperty("evolves_to")
-    val evolvesTo: List<ChainLink>?
+    @JsonProperty("evolves_to") val evolvesTo: List<ChainLink>?
 )
 
-@JsonIgnoreProperties(ignoreUnknown = true)
 data class SpeciesInfo(
     val name: String?
+)
+
+@Entity
+@Table(name = "pokemon")
+data class PokemonSalvo(
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Int,
+    @Column(name = "nome")
+    val nome: String,
+    @Column(name = "tipo_principal")
+    val tipoPrincipal: String?,
+    @Column(name = "imagem")
+    val imagem: String?
 )
